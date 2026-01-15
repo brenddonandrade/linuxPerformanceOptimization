@@ -1,0 +1,64 @@
+#!/bin/bash
+# ============================================================
+# Script Name : configure
+# Author      : Brenddon Andrade
+# Created     : 15-Jan-2026
+# Version     : 1.0
+# Description : Optimizer your linux system using some scripts.
+# Usage       : ./configure
+# ============================================================
+
+# verify compatibility
+if [[ "$(uname)" == "Linux" ]]; then
+	echo "Running in Linux ✅"
+else
+	echo "This script only supports Linux ❌"
+	exit 1
+fi
+
+# verify your inputs
+if [ $# -ne 1 ]; then
+	echo "Use: $0 <fedora/other system>"
+	exit 1
+fi
+
+# verify your linux system
+if [[ "$1" -ne "fedora" ]]; then
+	echo "Actualy, this script running only fedora linux. I'm so sorry. Add an issue for request more systems."
+	exit 1
+fi
+
+######  Fedora Systems
+if [[ "$1" == "fedora" ]]; then
+	# Step 1: Processor Optimization (tuned)
+	# Installing and activating the low latency and performance profile
+	sudo dnf install tuned
+	sudo systemctl enable --now tuned
+	sudo tuned-adm profile throughput-performance
+
+		
+	# Step 2: Memory Optimization and "Snappiness" (Sysctl)
+	# making a configuration file to chance memory behavior	
+	sudo echo "
+	# Reduces the tendency to use SWAP (Default is 60, let's lower it to 10)
+	# This makes the system keep apps in RAM, preventing "stuttering" when switching windows.
+	vm.swappiness=10
+
+	# Improves file cache management (folders open faster)
+	vm.vfs_cache_pressure=50
+
+	# Increases the inotify limit (essential for those who use IDEs like VS Code/PyCharm)
+	fs.inotify.max_user_watches=524288
+	" > /etc/sysctl.d/99-mac-optimization.conf
+
+	# apply changes
+	sudo sysctl --system
+
+
+
+
+
+
+
+
+
